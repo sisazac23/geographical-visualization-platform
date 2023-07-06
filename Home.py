@@ -15,6 +15,15 @@ from streamlit_folium import folium_static
 
 import os
 
+
+st.set_page_config(layout="wide")
+
+st.title("GeoData Visualization Platform")
+
+
+
+
+
 # load dataframe and information
 def load_data(path):
     df = gpd.read_file(path)
@@ -24,14 +33,6 @@ def load_data(path):
 #with open('zoned_data_sit.geojson') as f:
 #    geo= json.load(f)
 
-df = load_data('zoned_data_sit.geojson')
-var = 'tpm25'
-df = df[df['variable'] == var]
-
-
-df_data = df[['mean_concentration','zone']]
-df_geo = df[['geometry','zone','mean_concentration']]
-
 
 
 def threshold(data):
@@ -40,7 +41,7 @@ def threshold(data):
     return threshold_scale.tolist()
 
 
-def show_map(data,data_geo,threshold_scale,variable='mean_concentration'):
+def show_map(data,data_geo,threshold_scale,variable):
     maps = folium.Choropleth(
         geo_data=data_geo,
         data=data,
@@ -54,7 +55,7 @@ def show_map(data,data_geo,threshold_scale,variable='mean_concentration'):
     ).add_to(stream_map)
 
     folium.LayerControl().add_to(stream_map)
-    tooltip = folium.features.GeoJsonTooltip(fields=['zone', 'mean_concentration'],
+    tooltip = folium.features.GeoJsonTooltip(fields=['zone', variable],
                                              aliases=['Zone', 'Mean concentration'],
                                              labels=True)
     maps.geojson.add_child(tooltip)
@@ -62,5 +63,30 @@ def show_map(data,data_geo,threshold_scale,variable='mean_concentration'):
     folium_static(stream_map)
 
 
+map_dict = {'Concentrations map': 'data/zoned_data_sit.geojson', 'Chemicals map': 'data/zoned_chem_sit.geojson'}
+
+select_map = st.sidebar.selectbox('Select map', ['Concentrations map', 'Chemicals map'])
+
+df = load_data(map_dict[select_map])
+
+if select_map == 'Concentrations map':
+    select_variable = st.sidebar.selectbox('Select variable', list(df.columns[~df.columns.isin(['geometry', 'zone'])]))
+    df = df[[select_variable,'zone', 'geometry']]
+
+if select_map == 'Chemicals map':
+    select_variable = st.sidebar.selectbox('Select variable', list(df.columns[~df.columns.isin(['geometry', 'zone'])]))
+    df = df[[select_variable,'zone', 'geometry']]
+
+
+
 stream_map = folium.Map(location=[6.2518400, -75.5635900], zoom_start=10, control_scale=True)
-show_map(df_data,df_geo,threshold(df_data['mean_concentration']))
+show_map(df,df,threshold(df[select_variable]),select_variable)
+
+st.sidebar.title("About")
+
+logo = "logo-eafit.png"
+st.sidebar.image(logo)
+
+
+# cito - exposición - supervivencia
+
