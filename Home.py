@@ -1,8 +1,6 @@
 import pandas as pd
 import streamlit as st
-from urllib.request import urlopen
 import json
-from copy import deepcopy
 import geopandas as gpd
 import folium 
 import numpy as np
