@@ -12,6 +12,14 @@ st.set_page_config(layout="wide")
 
 st.title("GeoData Visualization Platform")
 
+hide_streamlit_style = """
+            <style>
+            #MainMenu {visibility: hidden;}
+            footer {visibility: hidden;}
+            </style>
+            """
+st.markdown(hide_streamlit_style, unsafe_allow_html=True) 
+
 # load dataframe and information
 def load_data(path):
     df = gpd.read_file(path)
