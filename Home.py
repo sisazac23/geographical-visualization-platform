@@ -1,6 +1,5 @@
 import pandas as pd
 import streamlit as st
-import json
 import geopandas as gpd
 import folium 
 import numpy as np
