@@ -1,15 +1,10 @@
 import pandas as pd
 import streamlit as st
-import matplotlib.pyplot as plt
-import plotly.express as px
-import plotly.graph_objects as go
 from urllib.request import urlopen
 import json
 from copy import deepcopy
-from plotly.subplots import make_subplots
 import geopandas as gpd
 import folium 
-from streamlit_folium import st_folium
 import numpy as np
 from streamlit_folium import folium_static
 
