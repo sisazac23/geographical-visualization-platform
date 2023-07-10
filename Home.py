@@ -108,11 +108,21 @@ if select_map != 'Missions':
 else:
     #stream_map = folium.Map(location=[6.2518400, -75.5635900], zoom_start=10, control_scale=True, tiles=select_tile_provider,locate_control=True, latlon_control=True, draw_export=True, minimap_control=True)
     plot_points(df)
-    # plot variable in y axis, x axix is the index
-    st.line_chart(df[select_variable])
     
+    st.markdown(f"## {select_variable} Line Chart")
+    # beautify the st.line_chart(df[select_variable], use_container_width=True) plot
+    st.line_chart(df[select_variable], use_container_width=True)
+    st.markdown(f"## {select_variable} Histogram")
+    st.bar_chart(df[select_variable], use_container_width=True)
+    # center the descriptive statistics markdown st.markdown(f"## {select_variable} Descriptive Statistics")
+    st.markdown(f"## {select_variable} Descriptive Statistics")
+    st.table(df[select_variable].describe().round(2).transpose())
 
 
-
+    
+    
+st.sidebar.title("About")
+markdown = "App to visualize chemical measurements over different ccolombian points of interest" 
+st.sidebar.info(markdown)
 logo = "logo-eafit.png"
 st.sidebar.image(logo)

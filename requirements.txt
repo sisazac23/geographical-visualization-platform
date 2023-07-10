@@ -10,4 +10,3 @@ streamlit
 streamlit_folium
 numpy
 folium
-geopandas
