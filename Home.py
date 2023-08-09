@@ -12,14 +12,6 @@ st.set_page_config(layout="wide")
 
 st.title("GeoData Visualization Platform")
 
-hide_streamlit_style = """
-            <style>
-            #MainMenu {visibility: hidden;}
-            footer {visibility: hidden;}
-            </style>
-            """
-st.markdown(hide_streamlit_style, unsafe_allow_html=True) 
-
 # load dataframe and information
 def load_data(path):
     df = gpd.read_file(path)
@@ -106,7 +98,6 @@ if select_map != 'Missions':
     stream_map = folium.Map(location=[6.2518400, -75.5635900], zoom_start=10, control_scale=True, tiles=select_tile_provider,locate_control=True, latlon_control=True, draw_export=True, minimap_control=True)
     show_map(df, df, threshold(df[select_variable]), select_variable)
 else:
-    #stream_map = folium.Map(location=[6.2518400, -75.5635900], zoom_start=10, control_scale=True, tiles=select_tile_provider,locate_control=True, latlon_control=True, draw_export=True, minimap_control=True)
     plot_points(df)
     
     st.markdown(f"## {select_variable} Line Chart")
@@ -122,7 +113,15 @@ else:
     
     
 st.sidebar.title("About")
-markdown = "App to visualize chemical measurements over different ccolombian points of interest" 
+markdown = "App to visualize chemical measurements over different colombian points of interest" 
 st.sidebar.info(markdown)
 logo = "logo-eafit.png"
 st.sidebar.image(logo)
+
+hide_streamlit_style = """
+            <style>
+            #MainMenu {visibility: hidden;}
+            footer {visibility: hidden;}
+            </style>
+            """
+st.markdown(hide_streamlit_style, unsafe_allow_html=True) 
