@@ -10,6 +10,14 @@ import os
 
 st.set_page_config(layout="wide")
 
+hide_streamlit_style = """
+            <style>
+            #MainMenu {visibility: hidden;}
+            footer {visibility: hidden;}
+            </style>
+            """
+st.markdown(hide_streamlit_style, unsafe_allow_html=True) 
+
 st.title("GeoData Visualization Platform")
 
 # load dataframe and information
@@ -40,7 +48,7 @@ def show_map(data, data_geo, threshold_scale, variable):
                                              aliases=['Zone', 'Mean concentration'],
                                              labels=True)
     maps.geojson.add_child(tooltip)
-    
+
     folium_static(stream_map)
 
 
@@ -110,20 +118,11 @@ else:
     st.table(df[select_variable].describe().round(2).transpose())
 
 
-    
-    
+       
 st.sidebar.title("About")
-markdown = "App to visualize chemical measurements over different colombian points of interest" 
+markdown = "Platform to visualize chemical measurements over different colombian points of interest" 
 st.sidebar.info(markdown)
 logo = "logo-eafit.png"
 st.sidebar.image(logo)
 
-hide_streamlit_style = """
-            <style>
-            #MainMenu {visibility: hidden;}
-            footer {visibility: hidden;}
-            </style>
-            """
-st.markdown(hide_streamlit_style, unsafe_allow_html=True) 
 
-st.write('prueba')
