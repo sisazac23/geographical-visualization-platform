@@ -129,12 +129,64 @@ else:
     st.line_chart(df[select_variable], use_container_width=True)
     # plot using plotly
     fig = go.Figure()
-    fig.add_trace(go.Scatter(x=df.index, y=df[select_variable], mode='lines+markers'))
+    # Add a scatter trace with lines and markers
+    fig.add_trace(go.Scatter(
+        x=df.index,
+        y=df[select_variable],
+        mode='lines+markers',
+        line=dict(color='#e74c3c', width=2),  # Set line color and width
+        marker=dict(symbol='circle', size=8, color='#3498db', line=dict(color='#ffffff', width=1)),  # Set marker properties
+    ))
+
+    # Update layout for better appearance
+    fig.update_layout(
+        title='Line Plot with Markers of {}'.format(select_variable),
+        xaxis_title='Index',
+        yaxis_title=select_variable,
+        showlegend=False,  # Hide legend
+        plot_bgcolor='white',  # Set plot background color
+        xaxis=dict(
+            showline=True,
+            showgrid=False,
+            linewidth=2,
+            linecolor='black'
+        ),
+        yaxis=dict(
+            showline=True,
+            showgrid=True,
+            gridcolor='lightgray'
+        )
+    )
     figs.append(fig)
     st.markdown(f"## {select_variable} Histogram")
     # plot using plotly
     fig = go.Figure()
-    fig.add_trace(go.Histogram(x=df[select_variable]))
+    # Add a histogram trace
+    fig.add_trace(go.Histogram(
+        x=df[select_variable],
+        marker_color='#3498db',  # Set the color of the bars
+        opacity=0.7  # Set the opacity of the bars
+    ))
+    # Update layout for better appearance
+    fig.update_layout(
+        title='Histogram of {}'.format(select_variable),
+        xaxis_title=select_variable,
+        yaxis_title='Frequency',
+        showlegend=False,  # Hide legend
+        bargap=0.05,  # Gap between bars
+        plot_bgcolor='white',  # Set plot background color
+        xaxis=dict(
+            showline=True,
+            showgrid=False,
+            linewidth=2,
+            linecolor='black'
+        ),
+        yaxis=dict(
+            showline=True,
+            showgrid=True,
+            gridcolor='lightgray'
+        )
+    )
     figs.append(fig)
     st.bar_chart(df[select_variable], use_container_width=True)
     # center the descriptive statistics markdown st.markdown(f"## {select_variable} Descriptive Statistics")
