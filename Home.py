@@ -10,7 +10,7 @@ from tempfile import NamedTemporaryFile
 from streamlit_folium import folium_static
 import plotly.graph_objects as go
 
-
+import glob
 import os
 import io
 
@@ -68,6 +68,160 @@ def show_map(data, data_geo, threshold_scale, variable):
     folium_static(stream_map)
 
 
+def create_3d_grid(dataframe: pd.DataFrame, resolution: int):
+    """
+    Creates a 3D grid from a Pandas DataFrame.
+    
+    Args:
+        dataframe (pd.DataFrame): The DataFrame to create the grid from.
+        resolution (int): The number of points to use in each dimension.
+    
+    Returns:
+        np.ndarray, np.ndarray, np.ndarray: The 3D grid.
+    """
+    
+    # Get the minimum and maximum values for each column
+    min_values = dataframe.min(numeric_only=True)
+    max_values = dataframe.max(numeric_only=True)
+
+    # Create coordinate arrays using the minimum and maximum values
+    x = np.linspace(min_values[0], max_values[0], resolution)
+    y = np.linspace(min_values[1], max_values[1], resolution)
+    z = np.linspace(min_values[2], max_values[2], resolution)
+
+    # Create a 3D grid using NumPy's meshgrid function
+    x_grid, y_grid, z_grid = np.meshgrid(x, y, z)
+
+    # Return the 3D grid
+    return x_grid, y_grid, z_grid
+
+def plot_grid_and_points(df,x, y, z,variable):
+    """
+    Plot the cells formed by the meshgrid.
+
+    Args:
+        x (ndarray): X-coordinates of the meshgrid.
+        y (ndarray): Y-coordinates of the meshgrid.
+        z (ndarray): Z-coordinates of the meshgrid.
+    """
+    fig = plt.figure(figsize=(10,10))
+    ax = fig.add_subplot(111, projection='3d')
+
+    
+
+    # Get the dimensions of the grid
+    x_dim, y_dim, z_dim = x.shape
+
+    # Plot the lines between the cells
+    for i in range(x_dim - 1):
+        for j in range(y_dim - 1):
+            for k in range(z_dim - 1):
+                # Get the vertices of the current cell
+                vertices = [
+                    (x[i, j, k], y[i, j, k], z[i, j, k]),
+                    (x[i+1, j, k], y[i+1, j, k], z[i+1, j, k]),
+                    (x[i+1, j+1, k], y[i+1, j+1, k], z[i+1, j+1, k]),
+                    (x[i, j+1, k], y[i, j+1, k], z[i, j+1, k]),
+                    (x[i, j, k+1], y[i, j, k+1], z[i, j, k+1]),
+                    (x[i+1, j, k+1], y[i+1, j, k+1], z[i+1, j, k+1]),
+                    (x[i+1, j+1, k+1], y[i+1, j+1, k+1], z[i+1, j+1, k+1]),
+                    (x[i, j+1, k+1], y[i, j+1, k+1], z[i, j+1, k+1])
+                ]
+
+                # Define the edges of the current cell
+                edges = [
+                    (vertices[0], vertices[1]),
+                    (vertices[1], vertices[2]),
+                    (vertices[2], vertices[3]),
+                    (vertices[3], vertices[0]),
+                    (vertices[4], vertices[5]),
+                    (vertices[5], vertices[6]),
+                    (vertices[6], vertices[7]),
+                    (vertices[7], vertices[4]),
+                    (vertices[0], vertices[4]),
+                    (vertices[1], vertices[5]),
+                    (vertices[2], vertices[6]),
+                    (vertices[3], vertices[7])
+                ]
+
+                # Plot the lines for the edges
+                for edge in edges:
+                    x_vals = [edge[0][0], edge[1][0]]
+                    y_vals = [edge[0][1], edge[1][1]]
+                    z_vals = [edge[0][2], edge[1][2]]
+                    ax.plot(x_vals, y_vals, z_vals, 'r-',alpha=0.2)
+                    
+    ax.scatter(df['lat'],df['lot'],df['A_1'],c=df[variable],cmap='viridis',alpha=0.5)
+
+    ax.set_xlabel('lat')
+    ax.set_ylabel('lon')
+    ax.set_zlabel('altitude')
+
+    return ax
+
+
+def plot_cells(x, y, z):
+    """
+    Plot the cells formed by the meshgrid.
+
+    Args:
+        x (ndarray): X-coordinates of the meshgrid.
+        y (ndarray): Y-coordinates of the meshgrid.
+        z (ndarray): Z-coordinates of the meshgrid.
+    """
+    fig = plt.figure(figsize=(10,10))
+    ax = fig.add_subplot(111, projection='3d')
+
+    
+
+    # Get the dimensions of the grid
+    x_dim, y_dim, z_dim = x.shape
+
+    # Plot the lines between the cells
+    for i in range(x_dim - 1):
+        for j in range(y_dim - 1):
+            for k in range(z_dim - 1):
+                # Get the vertices of the current cell
+                vertices = [
+                    (x[i, j, k], y[i, j, k], z[i, j, k]),
+                    (x[i+1, j, k], y[i+1, j, k], z[i+1, j, k]),
+                    (x[i+1, j+1, k], y[i+1, j+1, k], z[i+1, j+1, k]),
+                    (x[i, j+1, k], y[i, j+1, k], z[i, j+1, k]),
+                    (x[i, j, k+1], y[i, j, k+1], z[i, j, k+1]),
+                    (x[i+1, j, k+1], y[i+1, j, k+1], z[i+1, j, k+1]),
+                    (x[i+1, j+1, k+1], y[i+1, j+1, k+1], z[i+1, j+1, k+1]),
+                    (x[i, j+1, k+1], y[i, j+1, k+1], z[i, j+1, k+1])
+                ]
+
+                # Define the edges of the current cell
+                edges = [
+                    (vertices[0], vertices[1]),
+                    (vertices[1], vertices[2]),
+                    (vertices[2], vertices[3]),
+                    (vertices[3], vertices[0]),
+                    (vertices[4], vertices[5]),
+                    (vertices[5], vertices[6]),
+                    (vertices[6], vertices[7]),
+                    (vertices[7], vertices[4]),
+                    (vertices[0], vertices[4]),
+                    (vertices[1], vertices[5]),
+                    (vertices[2], vertices[6]),
+                    (vertices[3], vertices[7])
+                ]
+
+                # Plot the lines for the edges
+                for edge in edges:
+                    x_vals = [edge[0][0], edge[1][0]]
+                    y_vals = [edge[0][1], edge[1][1]]
+                    z_vals = [edge[0][2], edge[1][2]]
+                    ax.plot(x_vals, y_vals, z_vals, 'r-',alpha=0.2)
+
+    ax.set_xlabel('lat')
+    ax.set_ylabel('lot')
+    ax.set_zlabel('A_1')
+
+    return ax
+
 def plot_points(data, size=10000, color='red'):
     stream_map = folium.Map(location=[6.2518400, -75.5635900], zoom_start=10, control_scale=True, tiles=select_tile_provider,locate_control=True, latlon_control=True, draw_export=True, minimap_control=True)
     for i in range(len(data)):
@@ -89,19 +243,28 @@ tile_providers = {
     'CartoDB Dark_Matter': 'CartoDB Dark_Matter',
 }
 
-map_dict = {'Concentrations map': 'data/zoned_data_sit.geojson', 'Chemicals map': 'data/zoned_chem_sit.geojson',
-            'Metal risk map': 'data/zoned_metalic_sit.geojson','Mission map 1':'data/mission1.geojson','Mission map 2':'data/mission2.geojson'}
 
+
+
+map_dict = {'Concentrations map': 'data/zoned_data_sit.geojson', 'Chemicals map': 'data/zoned_chem_sit.geojson',
+            'Metal risk map': 'data/zoned_metalic_sit.geojson'}
+
+path = 'data/geojson_missions'
+all_files = glob.glob(path + "/*.geojson" )
+mission_names = []
+for filename in all_files:
+    mission_names.append(filename.split('/')[-1].split('.')[0])
+    map_dict[filename.split('/')[-1].split('.')[0]]=path+'/'+filename.split('/')[-1]
 
 select_tile_provider = st.sidebar.selectbox('Select tile provider', list(tile_providers.keys()))
 select_map = st.sidebar.selectbox('Select map', ['Concentrations map', 'Chemicals map', 'Metal risk map', 'Missions'])
 
 
 if select_map == 'Missions':
-    select_mission = st.sidebar.selectbox('Select mission', ['Mission map 1', 'Mission map 2'])
+    select_mission = st.sidebar.selectbox('Select mission', mission_names)
     df = load_data(map_dict[select_mission])
     select_variable = st.sidebar.selectbox('Select variable', list(df.columns[~df.columns.isin(['geometry','lat','lot'])]))
-    df = df[[select_variable, 'geometry','lat','lot']]
+    #df = df[[select_variable, 'geometry','lat','lot']]
 
 if select_map == 'Concentrations map':
     df = load_data(map_dict[select_map])
@@ -189,7 +352,6 @@ else:
     )
     figs.append(fig)
     st.bar_chart(df[select_variable], use_container_width=True)
-    # center the descriptive statistics markdown st.markdown(f"## {select_variable} Descriptive Statistics")
     st.markdown(f"## {select_variable} Descriptive Statistics")
     # create fig using plotly
     st.table(df[select_variable].describe().round(2).transpose())
@@ -203,6 +365,10 @@ else:
                    align='left'))
     ])
     figs.append(fig)
+    x_grid, y_grid, z_grid = create_3d_grid(df, 5)
+    ax = plot_grid_and_points(df, x_grid, y_grid, z_grid,select_variable)
+    st.pyplot(ax.figure)
+    
 
 
 
