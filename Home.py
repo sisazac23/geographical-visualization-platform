@@ -259,6 +259,8 @@ for filename in all_files:
 select_tile_provider = st.sidebar.selectbox('Select tile provider', list(tile_providers.keys()))
 select_map = st.sidebar.selectbox('Select map', ['Concentrations map', 'Chemicals map', 'Metal risk map', 'Missions'])
 
+# write title of the map
+st.markdown(f"## {select_map}")
 
 if select_map == 'Missions':
     select_mission = st.sidebar.selectbox('Select mission', mission_names)
