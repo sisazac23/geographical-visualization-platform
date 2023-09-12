@@ -247,7 +247,7 @@ tile_providers = {
 
 
 map_dict = {'Concentrations map': 'data/zoned_data_sit.geojson', 'Chemicals map': 'data/zoned_chem_sit.geojson',
-            'Metal risk map': 'data/zoned_metalic_sit.geojson'}
+            'Metal risk map': 'data/zoned_metalic_sit.geojson','Risk map': 'data/zoned_risk.geojson'}
 
 path = 'data/geojson_missions'
 all_files = glob.glob(path + "/*.geojson" )
@@ -257,7 +257,7 @@ for filename in all_files:
     map_dict[filename.split('/')[-1].split('.')[0]]=path+'/'+filename.split('/')[-1]
 
 select_tile_provider = st.sidebar.selectbox('Select tile provider', list(tile_providers.keys()))
-select_map = st.sidebar.selectbox('Select map', ['Concentrations map', 'Chemicals map', 'Metal risk map', 'Missions'])
+select_map = st.sidebar.selectbox('Select map', ['Concentrations map', 'Chemicals map', 'Metal risk map','Risk map', 'Missions'])
 
 # write title of the map
 st.markdown(f"## {select_map}")
@@ -265,6 +265,7 @@ st.markdown(f"## {select_map}")
 if select_map == 'Missions':
     select_mission = st.sidebar.selectbox('Select mission', mission_names)
     df = load_data(map_dict[select_mission])
+    df.rename(columns={'NO2': 'NO₂', 'C3H8': 'Propano: C₃H₈', 'C4H10': 'Butano: C₄H₁₀', 'CH4': 'Metano: CH₄', 'H2': 'H₂', 'C2H5OH': 'Etanol: C₂H₅OH'}, inplace=True)
     select_variable = st.sidebar.selectbox('Select variable', list(df.columns[~df.columns.isin(['geometry','lat','lot'])]))
     #df = df[[select_variable, 'geometry','lat','lot']]
 
@@ -282,6 +283,11 @@ if select_map == 'Metal risk map':
     df = load_data(map_dict[select_map])
     select_variable = 'risk'
     df = df[[select_variable,'geometry','zone']]
+
+if select_map == 'Risk map':
+    df = load_data(map_dict[select_map])
+    select_variable = st.sidebar.selectbox('Select variable', list(df.columns[~df.columns.isin(['geometry', 'zone'])]))
+    df = df[[select_variable,'zone','geometry']]
 
 if select_map != 'Missions':
     stream_map = folium.Map(location=[6.2518400, -75.5635900], zoom_start=10, control_scale=True, tiles=select_tile_provider,locate_control=True, latlon_control=True, draw_export=True, minimap_control=True)
