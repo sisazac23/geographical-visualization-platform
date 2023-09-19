@@ -265,7 +265,7 @@ st.markdown(f"## {select_map}")
 if select_map == 'Missions':
     select_mission = st.sidebar.selectbox('Select mission', mission_names)
     df = load_data(map_dict[select_mission])
-    df.rename(columns={'NO2': 'NO₂', 'C3H8': 'Propano: C₃H₈', 'C4H10': 'Butano: C₄H₁₀', 'CH4': 'Metano: CH₄', 'H2': 'H₂', 'C2H5OH': 'Etanol: C₂H₅OH'}, inplace=True)
+    df.rename(columns={'NO2': 'NO₂', 'C3H8': 'Propano C₃H₈', 'C4H10': 'Butano C₄H₁₀', 'CH4': 'Metano CH₄', 'H2': 'H₂', 'C2H5OH': 'Etanol C₂H₅OH'}, inplace=True)
     select_variable = st.sidebar.selectbox('Select variable', list(df.columns[~df.columns.isin(['geometry','lat','lot'])]))
     #df = df[[select_variable, 'geometry','lat','lot']]
 
